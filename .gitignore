@@ -1,0 +1,48 @@
+# Drupal Bullshit    #
+######################
+cache
+private/backup_migrate/scheduled
+sites/default/files
+sites/default/settings.php
+sitemap.xml
+sitemap.xml.gz
+
+# OS generated files #
+######################
+.DS_Store?
+.DS_Store
+ehthumbs.db 
+Icon?
+Thumbs.db
+
+# Ignore configuration files that may contain sensitive information.
+drupal/sites/*/settings*.php
+
+# Ignore configuration css files
+#drupal/sites/*/themes/bizsnack/.sass-cache
+.sass-cache
+
+# Ignore paths that contain user-generated content.
+drupal/sites/*/files
+drupal/sites/*/private
+
+# Ignore everything in sites/ except default/ and all/ folders For Aegir
+drupal/sites/*
+!drupal/sites/all
+!drupal/sites/default
+drupal/drushrc.php
+
+databases/local
+.buildpath
+.Drupal.sublime-projectcomplections
+.project
+.settings
+*~
+*.orig
+.svn
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+*.sublime-projectcompletions
+nbproject
+

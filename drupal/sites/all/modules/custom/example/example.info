@@ -1,0 +1,5 @@
+name = Example
+description = Various learning practice examples
+package = Development
+core = 7.x
+
