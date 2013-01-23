@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * Implementation of hook_permission
+ */
+function stalker_permission() {
+    return array(
+        "view stalkers" => array(
+            'title' => t('View Stalkers'),
+            'description' => t('Enables users to view top stalkers of a given profile.'),
+        ),
+        "configure stalkers" => array(
+            'title' => t('Configure Stalker Module'),
+            'description' => t('Enables users to configure various options of the module.'),
+        )
+    );
+}
+
+/**
+ *  	Implementation of hook_user_view
+ *      Counting when users views another's profile
+ */
+function stalker_user_view($account, $view_mode, $langcode) {
+
+    global $user;
+    dsm($user);
+    dsm($account);
+    if ($user->uid != $account->uid) {
+
+        if (!$_SESSION["stalker"][$account->uid]){
+            $_SESSION["stalker"][$account->uid] = 1;
+        }
+        else{
+            $_SESSION["stalker"][$account->uid]++;
+        }
+        
+        if(user_access("view stalkers")){
+            $message = t("@username: You've seen this profile @num times", 
+                    array("@username" => $user->name, "@num" => $_SESSION["stalker"][$account->uid]));
+            dsm($account->content);
+            
+            $account->content["stalker"] = array(
+                "#type" => "markup",
+                "#markup" => $message,
+                "#prefix" => "<p>",
+                "#suffix" => "</p>",
+                "#weight" => -2
+            );
+        }
+        
+        
+    }
+    
+    
+}

@@ -1,0 +1,4 @@
+name = Stalker
+description = Module which tracks users viewing other user's profiles
+core = 7.x
+package = Argo

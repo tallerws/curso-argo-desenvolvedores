@@ -63,6 +63,8 @@ function example_block_info() {
 
 function example_block_view($delta) {
 
+    dsm(debug_backtrace());
+    
     drupal_set_message("Drupal esta pedindo o conteudo do block: ".$delta);
     switch ($delta) {
 
@@ -87,3 +89,4 @@ function example_block_view($delta) {
             break;
     }
 }
+
