@@ -4,9 +4,13 @@
  * Implementation of hook_permission
  */
 function stalker_permission() {
+    //criando permission do Drupal
     return array(
+        //nome de maquina
         "view stalkers" => array(
+            //titulo que parecera na interface
             'title' => t('View Stalkers'),
+            // descricao que aparecera na iterface
             'description' => t('Enables users to view top stalkers of a given profile.'),
         ),
         "configure stalkers" => array(
@@ -22,11 +26,19 @@ function stalker_permission() {
  */
 function stalker_user_view($account, $view_mode, $langcode) {
 
+    // Variavel global disponivel atraves do Drupal user module, 
+    // que representa o usuario atual logado.
     global $user;
+    
+    // funcao dsm() do Devel module, que coloca o objeto em forma de Krumo pra gente ver o que tem dentro
     dsm($user);
     dsm($account);
+    
+    
     if ($user->uid != $account->uid) {
 
+        // utilizacao de SESSION dentro do Drupal
+        // SESSION variables estao disponiveis em forma serializada dentro  do global $user object
         if (!$_SESSION["stalker"][$account->uid]){
             $_SESSION["stalker"][$account->uid] = 1;
         }
@@ -34,11 +46,19 @@ function stalker_user_view($account, $view_mode, $langcode) {
             $_SESSION["stalker"][$account->uid]++;
         }
         
+        // utilizando a permissao que criamos atraves da funca user_access, lembre-se que esta funca aceita 2 parametros, 
+        // o nome de maquina da permissao sendo verificada e o objeto do usuario, por padrao o usuario logado.
         if(user_access("view stalkers")){
+            // ultilizacao da funcao t() para traducao de interface
             $message = t("@username: You've seen this profile @num times", 
+                    // @variavel nao sera traduzido, passe um array com os valores dinamicos a serem apresentdos
                     array("@username" => $user->name, "@num" => $_SESSION["stalker"][$account->uid]));
-            dsm($account->content);
             
+            
+            // criacao de um render array para apresentacao, 
+            // assim  damos liberdade para o pessoal de front fazer o que bem enteder com esse output
+            // no entanto, provendo um padrao de output
+            // http://drupal.org/node/930760
             $account->content["stalker"] = array(
                 "#type" => "markup",
                 "#markup" => $message,
