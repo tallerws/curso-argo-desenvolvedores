@@ -13,7 +13,7 @@ function stalker_permission() {
             // descricao que aparecera na iterface
             'description' => t('Enables users to view top stalkers of a given profile.'),
         ),
-        "configure stalkers" => array(
+        "configure stalker" => array(
             'title' => t('Configure Stalker Module'),
             'description' => t('Enables users to configure various options of the module.'),
         )
@@ -29,32 +29,29 @@ function stalker_user_view($account, $view_mode, $langcode) {
     // Variavel global disponivel atraves do Drupal user module, 
     // que representa o usuario atual logado.
     global $user;
-    
+
     // funcao dsm() do Devel module, que coloca o objeto em forma de Krumo pra gente ver o que tem dentro
-    dsm($user);
-    dsm($account);
-    
-    
+    //dsm($user);
+    //dsm($account);
+
+
     if ($user->uid != $account->uid) {
 
         // utilizacao de SESSION dentro do Drupal
         // SESSION variables estao disponiveis em forma serializada dentro  do global $user object
-        if (!$_SESSION["stalker"][$account->uid]){
+        if (!$_SESSION["stalker"][$account->uid]) {
             $_SESSION["stalker"][$account->uid] = 1;
-        }
-        else{
+        } else {
             $_SESSION["stalker"][$account->uid]++;
         }
-        
+
         // utilizando a permissao que criamos atraves da funca user_access, lembre-se que esta funca aceita 2 parametros, 
         // o nome de maquina da permissao sendo verificada e o objeto do usuario, por padrao o usuario logado.
-        if(user_access("view stalkers")){
-            // ultilizacao da funcao t() para traducao de interface
-            $message = t("@username: You've seen this profile @num times", 
-                    // @variavel nao sera traduzido, passe um array com os valores dinamicos a serem apresentdos
-                    array("@username" => $user->name, "@num" => $_SESSION["stalker"][$account->uid]));
-            
-            
+        if (user_access("view stalkers")) {
+
+
+            $message = theme("stalker_user", array("account" => $account));
+
             // criacao de um render array para apresentacao, 
             // assim  damos liberdade para o pessoal de front fazer o que bem enteder com esse output
             // no entanto, provendo um padrao de output
@@ -67,9 +64,93 @@ function stalker_user_view($account, $view_mode, $langcode) {
                 "#weight" => -2
             );
         }
-        
-        
     }
-    
-    
+}
+
+/**
+ *  Implementation of hook_theme
+ */
+function stalker_theme($existing, $type, $theme, $path) {
+// implementamos esse hook para dizer para o drupal
+// que temos funcoes que geram conteudo, assim integrando com o 
+// layer de theme
+    $items = array();
+
+    // no caso,m registramos a funcao theme_stalker_user
+    // que retorna uma menssagem dizendo ao usuario quantas vezes ele viu esse profile
+    $items["stalker_user"] = array(
+        // aqui dizemos que nossa funcao recebe uma variavel, account, sem default value
+        "variables" => array("account" => NULL),
+        // aqui dizemos para o drupal em qual arquivo encontrar nossa funcao
+        "file" => "stalker.theme.inc",
+    );
+
+    return $items;
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function stalker_menu() {
+    $items = array();
+
+    dsm("NO MENU!");
+    /**
+      // URL http://curso.local/caminho
+      // URL http://curso.local/caminho/dois
+      $items["caminho"] = array(
+
+      );
+
+      // URL http://curso.local/caminho/um
+      // toma vez do /caminho pois e mais especifico
+      $items["caminho/um"] = array(
+
+      );
+     */
+    $items["admin/config/stalker"] = array(
+        "title" => t("Stalker Settings"),
+        "description" => t("Configuration options for the stalker module"),
+        "page callback" => "stalker_configuration_page_callback",
+        "file" => "stalker.pages.inc",
+        "access arguments" => array("configure stalker"),
+    );
+
+    // %user, % especificando que e uma variavel na URL, e "user" dizendo para pegar o parametro na url
+    // e passar para a funcao user_load, retornando um objeto de usuario
+    $items["user/%user/top-stalkers"] = array(
+        //titulo da minha pagina
+        "title" => t("Top Stalkers"),
+        //a funcao que ira gerar o conteudo da minha pagina
+        "page callback" => "stalker_user_page_callback",
+        //o arquivo em que meu page callback se encontra
+        "file" => "stalker.pages.inc",
+        // do caminho registrado, o drupal quebra na "/", 
+        // tendo assim um array com argumentos
+        // aqui passamos o array[1], no caso, o %user
+        "page arguments" => array(1),
+        // funcao que retorna TRUE ou FALSE dizendo se tem acesso
+        // importante notar que access callback nao e prodcurado no file specificado acima
+        "access callback" => "stalker_user_page_access_callback",
+        // mesmo estilo do page arguments
+        "access arguments" => array(1),
+        // type, por default uma pagina, no caso dizemos que isso sera um tab
+        "type" => MENU_LOCAL_TASK
+    );
+
+
+    return $items;
+}
+
+/**
+ * Provides the Settings page for the Stalker module
+ */
+function stalker_user_page_access_callback($account) {
+
+    global $user;
+    // Dar acesso para quem tem a permissao view stalker ou e dono profile
+    if (user_access("view stalkers") || $user->uid == $account->uid)
+        return TRUE;
+
+    return FALSE;
 }
