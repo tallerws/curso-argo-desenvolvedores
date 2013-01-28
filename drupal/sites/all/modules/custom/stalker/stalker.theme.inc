@@ -16,7 +16,7 @@ function theme_stalker_user($variables) {
     // ultilizacao da funcao t() para traducao de interface
     $message = t("@username: You've seen this profile <strong>@num times",
             // @variavel nao sera traduzido, passe um array com os valores dinamicos a serem apresentdos
-            array("@username" => $user->name, "@num" => $_SESSION["stalker"][$variables["account"]->uid]));
+            array("@username" => $user->name, "@num" => stalker_get_count($user->uid, $variables["account"]->uid)));
     
     return $message;
 }

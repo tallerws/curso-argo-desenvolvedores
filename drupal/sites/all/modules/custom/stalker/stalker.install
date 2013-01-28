@@ -1,0 +1,60 @@
+<?php
+
+/*
+ * Implementation of hook_install
+ */
+
+function stalker_install() {
+    // Instala nossa tabela
+    drupal_install_schema("stalker");
+}
+
+/*
+ * Implementation of hook_install
+ */
+
+function stalker_uninstall() {
+    // Faz um drop na nossa tabela
+    drupal_uninstall_schema("stalker");
+}
+
+/*
+ * Implementation of hook_schema
+ */
+
+function stalker_schema() {
+    // Descreve pro Drupal nossa tabela
+    $schema = array();
+
+    $schema['stalker'] = array(
+        'description' => 'Saves how many times an user has seen a profile',
+        'fields' => array(
+            'uid' => array(
+                'description' => 'User Id of the currently logged in user',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+            'pid' => array(
+                'description' => 'User Id of the profile being seen',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+            'view_counter' => array(
+                'description' => 'Number of times uid has seen pid',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+        ),
+        'indexes' => array(
+            'pid' => array('pid'),
+            'uid' => array('uid'),
+        ),
+        "primary key" => array("uid", "pid")
+    );
+
+    return $schema;
+}
+

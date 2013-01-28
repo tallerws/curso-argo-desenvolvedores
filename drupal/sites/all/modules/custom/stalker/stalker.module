@@ -1,5 +1,6 @@
 <?php
 
+module_load_include("functions.inc", "stalker");
 /**
  * Implementation of hook_permission
  */
@@ -37,14 +38,11 @@ function stalker_user_view($account, $view_mode, $langcode) {
 
     if ($user->uid != $account->uid) {
 
-        // utilizacao de SESSION dentro do Drupal
-        // SESSION variables estao disponiveis em forma serializada dentro  do global $user object
-        if (!$_SESSION["stalker"][$account->uid]) {
-            $_SESSION["stalker"][$account->uid] = 1;
-        } else {
-            $_SESSION["stalker"][$account->uid]++;
-        }
-
+       
+         $count = stalker_get_count($user->uid, $account->uid);
+         $count++;
+         stalker_set_count($user->uid, $account->uid, $count);
+        
         // utilizando a permissao que criamos atraves da funca user_access, lembre-se que esta funca aceita 2 parametros, 
         // o nome de maquina da permissao sendo verificada e o objeto do usuario, por padrao o usuario logado.
         if (user_access("view stalkers")) {
@@ -76,7 +74,7 @@ function stalker_theme($existing, $type, $theme, $path) {
 // layer de theme
     $items = array();
 
-    // no caso,m registramos a funcao theme_stalker_user
+    // no caso, registramos a funcao theme_stalker_user
     // que retorna uma menssagem dizendo ao usuario quantas vezes ele viu esse profile
     $items["stalker_user"] = array(
         // aqui dizemos que nossa funcao recebe uma variavel, account, sem default value
